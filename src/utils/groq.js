@@ -2,6 +2,7 @@
 import { getSettings } from './storage.js'
 
 async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
+  // ✅ FIXED: Read from Vercel environment variable FIRST, then fall back to settings
   const groqKey = import.meta.env.VITE_GROQ_API_KEY || getSettings().groqKey
   if (!groqKey) throw new Error('NO_KEY')
 
@@ -31,8 +32,7 @@ async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
   return data.choices?.[0]?.message?.content?.trim() || ''
 }
 
-// ─── AI FEATURES ──────────────────────────────────────────────────────────────
-
+// ─── REVIEW RESPONSE ─────────────────────────────────────────────────────────
 export async function generateReviewResponse({ reviewText, reviewerName, rating, businessName, businessType, city }) {
   const system = `You are an expert Google Business Profile manager for ${businessName}, a ${businessType} in ${city}. 
 Write professional, warm, keyword-rich responses to customer reviews. 
@@ -48,6 +48,7 @@ Return only the response text, nothing else.`
   return callGroq(system, user, 300)
 }
 
+// ─── GOOGLE POST ──────────────────────────────────────────────────────────────
 export async function generateGooglePost({ postType, businessName, businessType, city, topic, offer, eventDate }) {
   const system = `You are a local SEO expert writing Google Business Profile posts for ${businessName}, a ${businessType} in ${city}.
 Write engaging, action-driven posts that rank in local search.
@@ -68,6 +69,7 @@ Return only the post text, nothing else.`
   return callGroq(system, user, 400)
 }
 
+// ─── Q&A GENERATOR ───────────────────────────────────────────────────────────
 export async function generateQandAs({ businessName, businessType, city, services, targetCustomers }) {
   const system = `You are a local SEO expert. Generate realistic, keyword-rich Q&As for a Google Business Profile.
 Business: ${businessName} — ${businessType} in ${city}.
@@ -85,6 +87,7 @@ Return only the 10 Q&As, nothing else.`
   return callGroq(system, user, 1200)
 }
 
+// ─── BUSINESS DESCRIPTION ─────────────────────────────────────────────────────
 export async function generateBusinessDescription({ businessName, businessType, city, services, uniquePoints, targetCustomers, founded, awards, languages }) {
   const system = `You are a local SEO copywriter. Write a Google Business Profile description.
 Rules: Max 750 characters. No links, no URLs, no prices, no promotional language like "best" or "#1".
@@ -105,6 +108,7 @@ Return only the description text under 750 characters, nothing else.`
   return callGroq(system, user, 250)
 }
 
+// ─── MONTHLY REPORT ───────────────────────────────────────────────────────────
 export async function generateMonthlyReport({ businessName, businessType, city, month, views, searches, calls, directions, websiteClicks, reviews, photosViews, topPosts, notes }) {
   const system = `You are a Google Business Profile consultant writing a monthly performance report for a client.
 Write in a professional, clear tone. Explain what the numbers mean in plain language.
@@ -126,4 +130,46 @@ Additional notes: ${notes || 'None'}
 Write a clear 3-paragraph summary + 3 bullet action points. Return only the report text.`
 
   return callGroq(system, user, 600)
+}
+
+// ─── KEYWORD SUGGESTER ────────────────────────────────────────────────────────
+export async function generateKeywords({ businessName, businessType, city, area, services, competitors }) {
+  const system = `You are a Google My Business local SEO expert specialising in African and international markets.
+Generate highly targeted, realistic keyword strategies that real customers type into Google Search and Google Maps.
+Be specific to the location, industry, and local search behaviour. Include both English and any relevant local language search terms.`
+
+  const user = `Generate a complete local keyword strategy for:
+Business: ${businessName}
+Type: ${businessType}
+City: ${city}
+Surrounding areas: ${area || 'surrounding neighbourhoods'}
+Services: ${services || 'general services'}
+Known competitors: ${competitors || 'not specified'}
+
+Return a structured keyword report in this exact format:
+
+PRIMARY KEYWORDS (highest search volume — use in business name area and description):
+[list 8 keywords]
+
+LONG-TAIL KEYWORDS (specific searches — use in services and Q&As):
+[list 10 keywords]
+
+NEAR ME KEYWORDS (location-intent searches):
+[list 6 keywords]
+
+COMPETITOR KEYWORDS (terms competitors likely rank for):
+[list 6 keywords]
+
+GOOGLE MAPS SPECIFIC KEYWORDS (how people search on Maps):
+[list 6 keywords]
+
+LOCAL LANGUAGE / SLANG TERMS (how locals actually refer to this service):
+[list 4 terms]
+
+WHERE TO USE EACH:
+[brief guide on where to place each category]
+
+Return only the keyword report, nothing else.`
+
+  return callGroq(system, user, 1200)
 }
