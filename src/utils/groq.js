@@ -2,7 +2,7 @@
 import { getSettings } from './storage.js'
 
 async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
-  const { groqKey } = getSettings()
+  const groqKey = import.meta.env.VITE_GROQ_API_KEY || getSettings().groqKey
   if (!groqKey) throw new Error('NO_KEY')
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
