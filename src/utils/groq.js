@@ -1,8 +1,14 @@
 // ─── GROQ AI UTILITY ─────────────────────────────────────────────────────────
 import { getSettings } from './storage.js'
 
+// ✅ CURRENT MODEL — updated June 2026
+// llama3-70b-8192 was decommissioned May 2025
+// llama-3.3-70b-versatile deprecated June 2026
+// Current recommended replacement: qwen/qwen3.6-27b
+const GROQ_MODEL = 'qwen/qwen3.6-27b'
+
 async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
-  // ✅ FIXED: Read from Vercel environment variable FIRST, then fall back to settings
+  // ✅ Reads from Vercel environment variable FIRST, then falls back to settings
   const groqKey = import.meta.env.VITE_GROQ_API_KEY || getSettings().groqKey
   if (!groqKey) throw new Error('NO_KEY')
 
@@ -13,7 +19,7 @@ async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'llama3-70b-8192',
+      model: GROQ_MODEL,
       max_tokens: maxTokens,
       temperature: 0.7,
       messages: [
@@ -34,9 +40,9 @@ async function callGroq(systemPrompt, userPrompt, maxTokens = 1024) {
 
 // ─── REVIEW RESPONSE ─────────────────────────────────────────────────────────
 export async function generateReviewResponse({ reviewText, reviewerName, rating, businessName, businessType, city }) {
-  const system = `You are an expert Google Business Profile manager for ${businessName}, a ${businessType} in ${city}. 
-Write professional, warm, keyword-rich responses to customer reviews. 
-Rules: Under 200 words. Thank the customer by name. Address their specific points. 
+  const system = `You are an expert Google Business Profile manager for ${businessName}, a ${businessType} in ${city}.
+Write professional, warm, keyword-rich responses to customer reviews.
+Rules: Under 200 words. Thank the customer by name. Address their specific points.
 For negative reviews: apologise sincerely, acknowledge the issue, offer to resolve offline, stay professional.
 For positive reviews: thank genuinely, highlight a keyword naturally, invite return visit.
 Never be defensive. Never copy-paste generic responses. Sound human and specific.`
@@ -74,7 +80,7 @@ export async function generateQandAs({ businessName, businessType, city, service
   const system = `You are a local SEO expert. Generate realistic, keyword-rich Q&As for a Google Business Profile.
 Business: ${businessName} — ${businessType} in ${city}.
 Rules: Questions must be what real customers actually search. Answers must be helpful, specific, and include natural keywords.
-Each answer 2–4 sentences. Professional and human tone.`
+Each answer 2-4 sentences. Professional and human tone.`
 
   const user = `Generate 10 Q&As for this business.
 Services: ${services || 'general services'}
@@ -91,7 +97,7 @@ Return only the 10 Q&As, nothing else.`
 export async function generateBusinessDescription({ businessName, businessType, city, services, uniquePoints, targetCustomers, founded, awards, languages }) {
   const system = `You are a local SEO copywriter. Write a Google Business Profile description.
 Rules: Max 750 characters. No links, no URLs, no prices, no promotional language like "best" or "#1".
-Natural keyword placement. First person or third person — be consistent. Human, warm, specific.
+Natural keyword placement. First person or third person - be consistent. Human, warm, specific.
 Focus on: what they do, who they serve, what makes them different.`
 
   const user = `Write a GBP description for:
@@ -148,10 +154,10 @@ Known competitors: ${competitors || 'not specified'}
 
 Return a structured keyword report in this exact format:
 
-PRIMARY KEYWORDS (highest search volume — use in business name area and description):
+PRIMARY KEYWORDS (highest search volume - use in business name area and description):
 [list 8 keywords]
 
-LONG-TAIL KEYWORDS (specific searches — use in services and Q&As):
+LONG-TAIL KEYWORDS (specific searches - use in services and Q&As):
 [list 10 keywords]
 
 NEAR ME KEYWORDS (location-intent searches):
