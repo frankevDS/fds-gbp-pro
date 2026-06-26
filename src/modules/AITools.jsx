@@ -3,7 +3,6 @@ import { T, Btn, Card, Input, Select, Field, SectionHeader, Spinner, copyText } 
 import { generateReviewResponse, generateGooglePost, generateQandAs, generateBusinessDescription, generateMonthlyReport, generateKeywords } from '../utils/groq.js'
 import { getSettings } from '../utils/storage.js'
 
-// ─── KEY CHECK ────────────────────────────────────────────────────────────────
 function hasKey() {
   return !!(import.meta.env.VITE_GROQ_API_KEY || getSettings().groqKey)
 }
@@ -20,42 +19,159 @@ function NoKeyWarning() {
 }
 
 // ─── SHARE UTILITIES ─────────────────────────────────────────────────────────
-function downloadPDF(text, filename) {
+
+// Opens a beautiful HTML version of the report for printing/saving as PDF
+function openPrintWindow(text, title, businessName) {
   const win = window.open('', '_blank')
-  if (!win) { alert('Please allow popups for this site to download PDF.'); return }
+  if (!win) { alert('Please allow popups for this site.'); return }
+  const settings = getSettings()
   win.document.write(`<!DOCTYPE html><html><head>
-    <title>${filename}</title>
+    <title>${title}</title>
+    <meta charset="UTF-8">
     <style>
-      body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.8; color: #000; padding: 40px; max-width: 800px; margin: 0 auto; }
-      pre { white-space: pre-wrap; word-break: break-word; font-family: inherit; }
-      h2 { color: #1B4FD8; border-bottom: 2px solid #1B4FD8; padding-bottom: 8px; }
-      @media print { body { padding: 20px; } @page { margin: 1.5cm; size: A4; } }
-    </style></head><body>
-    <h2>Frankev Digital Services</h2>
-    <pre>${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
-    <script>window.onload=function(){ setTimeout(function(){ window.print(); }, 400); }</script>
-    </body></html>`)
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: Arial, Helvetica, sans-serif; color: #1E293B; background: #fff; }
+      .page { max-width: 800px; margin: 0 auto; padding: 48px 52px; }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 24px; border-bottom: 3px solid #1B4FD8; margin-bottom: 32px; }
+      .brand-logo { background: #1B4FD8; color: white; font-weight: 900; font-size: 18px; padding: 10px 14px; border-radius: 8px; letter-spacing: -0.5px; }
+      .brand-name { font-size: 20px; font-weight: 800; color: #1B4FD8; margin-top: 6px; }
+      .brand-sub { font-size: 12px; color: #64748B; margin-top: 2px; }
+      .doc-title { text-align: right; }
+      .doc-title h1 { font-size: 18px; font-weight: 800; color: #0F1C3F; }
+      .doc-title p { font-size: 12px; color: #64748B; margin-top: 4px; }
+      .section { margin-bottom: 28px; }
+      .section-title { font-size: 13px; font-weight: 800; color: #1B4FD8; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 14px; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+      .info-row { display: flex; gap: 8px; font-size: 13px; }
+      .info-label { color: #64748B; font-weight: 600; min-width: 100px; flex-shrink: 0; }
+      .info-value { color: #1E293B; }
+      .score-box { background: #EEF3FF; border: 2px solid #1B4FD8; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+      .score-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; flex-shrink: 0; }
+      .score-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+      .score-verdict { font-size: 16px; font-weight: 800; }
+      .check-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; }
+      .check-pass { background: #F0FDF4; color: #15803D; }
+      .check-fail { background: #FEF2F2; color: #DC2626; }
+      .check-icon { font-size: 15px; flex-shrink: 0; }
+      .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .stat-box { background: #F8FAFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; text-align: center; }
+      .stat-value { font-size: 22px; font-weight: 900; color: #1B4FD8; }
+      .stat-label { font-size: 11px; color: #64748B; margin-top: 2px; font-weight: 600; }
+      .competitor-box { background: #F8FAFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+      .competitor-name { font-size: 14px; font-weight: 700; color: #0F1C3F; margin-bottom: 6px; }
+      .competitor-stats { display: flex; gap: 16px; font-size: 12px; color: #64748B; }
+      .map-pack-badge { background: #16A34A; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+      .opportunity { padding: 14px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 20px; }
+      .opp-critical { background: #FEF2F2; color: #DC2626; border: 1.5px solid #FCA5A5; }
+      .opp-high { background: #FFFBEB; color: #D97706; border: 1.5px solid #FCD34D; }
+      .opp-medium { background: #FFFFF0; color: #854D0E; border: 1.5px solid #FDE68A; }
+      .opp-low { background: #F0FDF4; color: #16A34A; border: 1.5px solid #86EFAC; }
+      .action-item { display: flex; gap: 10px; padding: 10px 14px; background: #EEF3FF; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+      .action-num { background: #1B4FD8; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+      .notes-box { background: #F8FAFF; border-left: 4px solid #1B4FD8; border-radius: 0 8px 8px 0; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: #1E293B; }
+      .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #E2E8F0; display: flex; justify-content: space-between; align-items: flex-end; }
+      .footer-brand { font-size: 13px; font-weight: 700; color: #1B4FD8; }
+      .footer-contact { font-size: 12px; color: #64748B; line-height: 1.8; }
+      .footer-date { font-size: 11px; color: #94A3B8; }
+      .no-print { display: block; background: #1B4FD8; color: white; padding: 12px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; margin: 0 auto 24px; font-family: inherit; }
+      @media print {
+        .no-print { display: none !important; }
+        .page { padding: 24px 32px; }
+        @page { margin: 1.5cm; size: A4; }
+      }
+    </style>
+  </head><body>
+    <div class="page">
+      <button class="no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <div class="header">
+        <div>
+          <div class="brand-logo">FDS</div>
+          <div class="brand-name">Frankev Digital Services</div>
+          <div class="brand-sub">${settings.yourEmail || 'frankevgloballtd@gmail.com'}</div>
+        </div>
+        <div class="doc-title">
+          <h1>${title}</h1>
+          <p>Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+          <p style="margin-top:4px;font-size:11px;color:#94A3B8;">gbp.frankevdigitalservices.com</p>
+        </div>
+      </div>
+      <div id="content"></div>
+      <div class="footer">
+        <div>
+          <div class="footer-brand">Frankev Digital Services</div>
+          <div class="footer-contact">${settings.yourEmail || 'frankevgloballtd@gmail.com'}<br>gbp.frankevdigitalservices.com</div>
+        </div>
+        <div class="footer-date">Report generated ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+      </div>
+    </div>
+    <script>
+      var rawText = ${JSON.stringify(text)};
+      document.getElementById('content').innerHTML = '<pre style="white-space:pre-wrap;word-break:break-word;font-family:Arial,sans-serif;font-size:13px;line-height:1.8;color:#1E293B;">' + rawText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+    </script>
+  </body></html>`)
   win.document.close()
 }
 
-// ✅ FIXED: Use Gmail compose URL instead of mailto — works without an email client installed
-function sendViaGmail(text, title) {
+// ✅ FIXED Gmail: Opens Gmail with short intro + instructs user to attach the PDF
+// Gmail URL body limit is ~2000 chars — we open the full doc in print window instead
+function sendViaGmail(text, title, businessName) {
+  const settings = getSettings()
+  
+  // First open the print window so they can save the PDF
+  openPrintWindow(text, title, businessName)
+  
+  // Then open Gmail with a professional email template
   const subject = encodeURIComponent(title)
-  // Gmail has a body limit — send first 1800 chars with note to see full content
-  const bodyPreview = text.length > 1800
-    ? text.substring(0, 1800) + '\n\n[Content truncated — see full document attached or in the app]'
-    : text
-  const body = encodeURIComponent(bodyPreview)
-  window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank')
+  const preview = text.substring(0, 400).replace(/[^\x20-\x7E\n]/g, '') // safe chars only
+  
+  const emailBody = `Dear Client,
+
+Please find below your Google Business Profile report from Frankev Digital Services.
+
+A full PDF version has opened in a separate window — please save it and attach it to this email before sending.
+
+------- REPORT SUMMARY -------
+
+${preview}...
+
+[Full report in the attached PDF]
+
+------- END OF PREVIEW -------
+
+For any questions about this report or your Google Business Profile, please do not hesitate to contact us.
+
+Best regards,
+${settings.yourName || 'Abiodun'}
+Frankev Digital Services
+${settings.yourEmail || 'frankevgloballtd@gmail.com'}
+gbp.frankevdigitalservices.com`
+
+  const body = encodeURIComponent(emailBody)
+  setTimeout(() => {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank')
+  }, 800)
 }
 
 function sendViaWhatsApp(text, title) {
-  const message = `*${title}*\n\n${text.substring(0, 3000)}`
-  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
+  const settings = getSettings()
+  // WhatsApp has a higher limit — send full text in chunks
+  const header = `*${title}*\n_Prepared by Frankev Digital Services_\n_${settings.yourEmail || 'frankevgloballtd@gmail.com'}_\n\n`
+  const fullMessage = header + text
+  // WhatsApp web supports up to ~65,000 chars
+  window.open(`https://wa.me/?text=${encodeURIComponent(fullMessage.substring(0, 4096))}`, '_blank')
 }
 
-// ─── SHARE BAR ────────────────────────────────────────────────────────────────
-export function ShareBar({ text, title }) {
+function btnStyle(bg) {
+  return {
+    padding: '8px 14px', borderRadius: 8, border: 'none',
+    background: bg, color: '#fff', fontWeight: 700,
+    fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
+    display: 'inline-flex', alignItems: 'center', gap: 5
+  }
+}
+
+// ─── SHARE BAR — exported so AuditTool can use it ────────────────────────────
+export function ShareBar({ text, title, businessName = '' }) {
   const [copied, setCopied] = useState(false)
   if (!text) return null
   return (
@@ -64,38 +180,40 @@ export function ShareBar({ text, title }) {
       padding: '12px 14px', background: T.successLight,
       border: `1.5px solid #86EFAC`, borderRadius: 10, marginBottom: 14
     }}>
-      <span style={{ fontSize: 12, fontWeight: 700, color: T.success, marginRight: 4 }}>✅ Ready to share:</span>
-      <button onClick={() => downloadPDF(text, title)} style={btnStyle('#DC2626')}>📄 Download PDF</button>
-      <button onClick={() => sendViaWhatsApp(text, title)} style={btnStyle('#16A34A')}>💬 WhatsApp</button>
-      <button onClick={() => sendViaGmail(text, title)} style={btnStyle(T.blue)}>📧 Gmail</button>
+      <span style={{ fontSize: 12, fontWeight: 700, color: T.success, marginRight: 4, width: '100%' }}>
+        ✅ Ready to share:
+      </span>
+      <button onClick={() => openPrintWindow(text, title, businessName)} style={btnStyle('#DC2626')}>
+        📄 Download PDF
+      </button>
+      <button onClick={() => sendViaWhatsApp(text, title)} style={btnStyle('#16A34A')}>
+        💬 WhatsApp
+      </button>
+      <button onClick={() => sendViaGmail(text, title, businessName)} style={btnStyle('#1B4FD8')}>
+        📧 Gmail (opens PDF + email)
+      </button>
       <button onClick={() => copyText(text, setCopied)} style={btnStyle(copied ? T.success : '#475569')}>
         {copied ? '✅ Copied!' : '📋 Copy Text'}
       </button>
+      <p style={{ fontSize: 11, color: T.textLight, width: '100%', margin: '4px 0 0' }}>
+        💡 For Gmail: The full PDF opens first — save it, then attach it to the email that opens automatically.
+      </p>
     </div>
   )
 }
 
-function btnStyle(bg) {
-  return {
-    padding: '8px 14px', borderRadius: 8, border: 'none',
-    background: bg, color: '#fff', fontWeight: 700,
-    fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-    display: 'flex', alignItems: 'center', gap: 5
-  }
-}
-
 // ─── RESULT BOX ───────────────────────────────────────────────────────────────
-function ResultBox({ result, title }) {
+function ResultBox({ result, title, businessName }) {
   if (!result) return null
   return (
     <div className="animate-fadeIn" style={{ marginTop: 16 }}>
-      <ShareBar text={result} title={title} />
+      <ShareBar text={result} title={title} businessName={businessName} />
       <div style={{
         background: '#F8FAFF', border: `1.5px solid ${T.grayBorder}`,
         borderLeft: `4px solid ${T.blue}`, borderRadius: 10,
         padding: 16, fontSize: 14, color: T.text,
         lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-        fontFamily: 'inherit'
+        fontFamily: 'inherit', maxHeight: 400, overflowY: 'auto'
       }}>
         {result}
       </div>
@@ -103,8 +221,7 @@ function ResultBox({ result, title }) {
   )
 }
 
-// ─── AI CARD ─────────────────────────────────────────────────────────────────
-function AICard({ icon, title, subtitle, children, result, resultTitle }) {
+function AICard({ icon, title, subtitle, children, result, resultTitle, businessName }) {
   return (
     <Card style={{ marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -115,7 +232,7 @@ function AICard({ icon, title, subtitle, children, result, resultTitle }) {
         </div>
       </div>
       {children}
-      <ResultBox result={result} title={resultTitle || title} />
+      <ResultBox result={result} title={resultTitle || title} businessName={businessName} />
     </Card>
   )
 }
@@ -139,7 +256,7 @@ function ReviewResponder() {
   return (
     <AICard icon="⭐" title="Review Response Generator"
       subtitle="Paste a customer review — AI writes a clean, copy-paste-ready owner response."
-      result={result} resultTitle={`Review Response — ${f.businessName}`}>
+      result={result} resultTitle={`Review Response — ${f.businessName}`} businessName={f.businessName}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
         <Field label="Business Name"><Input value={f.businessName} onChange={v => set('businessName', v)} placeholder="e.g. Frankev Online Store" /></Field>
         <Field label="Business Type"><Input value={f.businessType} onChange={v => set('businessType', v)} placeholder="e.g. Ecommerce Store" /></Field>
@@ -177,9 +294,7 @@ function PostGenerator() {
   }
 
   return (
-    <AICard icon="📢" title="Google Post Generator"
-      subtitle="Generate weekly Google Posts ready to publish."
-      result={result} resultTitle={`Google Post — ${f.businessName}`}>
+    <AICard icon="📢" title="Google Post Generator" subtitle="Generate weekly Google Posts ready to publish." result={result} resultTitle={`Google Post — ${f.businessName}`} businessName={f.businessName}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
         <Field label="Business Name"><Input value={f.businessName} onChange={v => set('businessName', v)} placeholder="e.g. Frankev Online Store" /></Field>
         <Field label="Business Type"><Input value={f.businessType} onChange={v => set('businessType', v)} placeholder="e.g. Ecommerce Store" /></Field>
@@ -218,9 +333,7 @@ function QAGenerator() {
   }
 
   return (
-    <AICard icon="❓" title="Q&A Generator"
-      subtitle="Generate 10 keyword-rich Q&As to seed into a client's GBP profile."
-      result={result} resultTitle={`GBP Q&As — ${f.businessName}`}>
+    <AICard icon="❓" title="Q&A Generator" subtitle="Generate 10 keyword-rich Q&As to seed into a client's GBP profile." result={result} resultTitle={`GBP Q&As — ${f.businessName}`} businessName={f.businessName}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
         <Field label="Business Name"><Input value={f.businessName} onChange={v => set('businessName', v)} placeholder="e.g. Frankev Online Store" /></Field>
         <Field label="Business Type"><Input value={f.businessType} onChange={v => set('businessType', v)} placeholder="e.g. Ecommerce Store" /></Field>
@@ -253,9 +366,7 @@ function DescriptionWriter() {
   }
 
   return (
-    <AICard icon="✍️" title="Business Description Writer"
-      subtitle="AI writes a Google-compliant, keyword-optimised 750-character description."
-      result={result} resultTitle={`GBP Description — ${f.businessName}`}>
+    <AICard icon="✍️" title="Business Description Writer" subtitle="AI writes a Google-compliant, keyword-optimised 750-character description." result={result} resultTitle={`GBP Description — ${f.businessName}`} businessName={f.businessName}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
         <Field label="Business Name" required><Input value={f.businessName} onChange={v => set('businessName', v)} placeholder="e.g. Frankev Online Store" /></Field>
         <Field label="Business Type" required><Input value={f.businessType} onChange={v => set('businessType', v)} placeholder="e.g. Ecommerce Store" /></Field>
@@ -266,7 +377,7 @@ function DescriptionWriter() {
       </div>
       <Field label="Services / What You Do"><Input value={f.services} onChange={v => set('services', v)} multiline rows={2} placeholder="e.g. Health supplements, fast delivery, free shipping" /></Field>
       <Field label="What Makes You Different"><Input value={f.uniquePoints} onChange={v => set('uniquePoints', v)} multiline rows={2} placeholder="e.g. Same-day delivery in Accra, 100% authentic products" /></Field>
-      <Field label="Target Customers"><Input value={f.targetCustomers} onChange={v => set('targetCustomers', v)} placeholder="e.g. Health-conscious shoppers in Accra and Greater Accra" /></Field>
+      <Field label="Target Customers"><Input value={f.targetCustomers} onChange={v => set('targetCustomers', v)} placeholder="e.g. Health-conscious shoppers in Accra" /></Field>
       {err && <div style={{ color: T.danger, fontSize: 13, marginBottom: 10, padding: '8px 12px', background: T.dangerLight, borderRadius: 8 }}>❌ {err}</div>}
       {result && <p style={{ fontSize: 11, color: result.length > 700 ? T.danger : T.textLight, marginBottom: 8 }}>{result.length}/750 characters</p>}
       <Btn onClick={run} disabled={loading || !f.businessName || !f.businessType || !f.city}>
@@ -293,6 +404,7 @@ function MonthlyReport() {
     setLoading(false)
   }
 
+  const settings = getSettings()
   const fullReport = result ? `FRANKEV DIGITAL SERVICES
 MONTHLY GBP PERFORMANCE REPORT
 ${'═'.repeat(52)}
@@ -318,14 +430,16 @@ PERFORMANCE ANALYSIS & RECOMMENDATIONS
 ${'─'.repeat(52)}
 ${result}
 ${'═'.repeat(52)}
-Prepared by Frankev Digital Services
-frankevgloballtd@gmail.com
+Prepared by: ${settings.yourName || 'Abiodun'}
+Frankev Digital Services
+${settings.yourEmail || 'frankevgloballtd@gmail.com'}
+gbp.frankevdigitalservices.com
 ${'═'.repeat(52)}` : ''
 
   return (
     <AICard icon="📈" title="Monthly Report Generator"
-      subtitle="Enter stats — AI writes the analysis. Download as PDF or send to client."
-      result={fullReport} resultTitle={`GBP Monthly Report — ${f.businessName} — ${f.month}`}>
+      subtitle="Enter stats — AI writes the analysis. Download PDF or send to client via Gmail/WhatsApp."
+      result={fullReport} resultTitle={`GBP Monthly Report — ${f.businessName} — ${f.month}`} businessName={f.businessName}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
         <Field label="Business Name" required><Input value={f.businessName} onChange={v => set('businessName', v)} placeholder="e.g. Frankev Online Store" /></Field>
         <Field label="Business Type"><Input value={f.businessType} onChange={v => set('businessType', v)} placeholder="e.g. Ecommerce Store" /></Field>
@@ -368,7 +482,7 @@ function KeywordSuggester() {
   return (
     <AICard icon="🔑" title="Local Keyword Suggester"
       subtitle="AI generates the exact terms people use to find your business on Google — including competitor keywords."
-      result={result} resultTitle={`Keyword Strategy — ${f.businessName} — ${f.city}`}>
+      result={result} resultTitle={`Keyword Strategy — ${f.businessName} — ${f.city}`} businessName={f.businessName}>
       <div style={{ background: T.blueLight, borderRadius: 10, padding: 12, marginBottom: 16, fontSize: 13, color: '#1E40AF' }}>
         💡 Use these keywords naturally in your GBP description, services, Q&As, and Google Posts.
       </div>
