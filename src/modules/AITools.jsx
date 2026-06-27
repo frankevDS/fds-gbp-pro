@@ -112,33 +112,29 @@ function openPrintWindow(text, title, businessName) {
   win.document.close()
 }
 
-// ✅ FIXED Gmail: Opens Gmail with short intro + instructs user to attach the PDF
-// Gmail URL body limit is ~2000 chars — we open the full doc in print window instead
+// ✅ FIXED: Gmail opens FIRST (direct from user click = browser allows it)
+// PDF opens in setTimeout AFTER — browser allows secondary opens after a short delay
 function sendViaGmail(text, title, businessName) {
   const settings = getSettings()
-  
-  // First open the print window so they can save the PDF
-  openPrintWindow(text, title, businessName)
-  
-  // Then open Gmail with a professional email template
+
   const subject = encodeURIComponent(title)
-  const preview = text.substring(0, 400).replace(/[^\x20-\x7E\n]/g, '') // safe chars only
-  
+  const preview = text.substring(0, 500).replace(/[^\x20-\x7E\n]/g, '')
+
   const emailBody = `Dear Client,
 
-Please find below your Google Business Profile report from Frankev Digital Services.
+Please find attached your Google Business Profile report prepared by Frankev Digital Services.
 
-A full PDF version has opened in a separate window — please save it and attach it to this email before sending.
+The full PDF report will open in a separate window on your screen — please save it and attach it to this email before sending to your client.
 
-------- REPORT SUMMARY -------
+------- REPORT PREVIEW -------
 
 ${preview}...
 
-[Full report in the attached PDF]
+[Continued in the attached PDF]
 
 ------- END OF PREVIEW -------
 
-For any questions about this report or your Google Business Profile, please do not hesitate to contact us.
+For any questions about this report or your Google Business Profile management, please contact us at any time.
 
 Best regards,
 ${settings.yourName || 'Abiodun'}
@@ -147,9 +143,14 @@ ${settings.yourEmail || 'frankevgloballtd@gmail.com'}
 gbp.frankevdigitalservices.com`
 
   const body = encodeURIComponent(emailBody)
+
+  // STEP 1 — Open Gmail FIRST (must be direct from user click — browsers block delayed popups)
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank')
+
+  // STEP 2 — Open PDF window after short delay (browsers allow this after the first popup)
   setTimeout(() => {
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank')
-  }, 800)
+    openPrintWindow(text, title, businessName)
+  }, 600)
 }
 
 function sendViaWhatsApp(text, title) {
@@ -196,7 +197,7 @@ export function ShareBar({ text, title, businessName = '' }) {
         {copied ? '✅ Copied!' : '📋 Copy Text'}
       </button>
       <p style={{ fontSize: 11, color: T.textLight, width: '100%', margin: '4px 0 0' }}>
-        💡 For Gmail: The full PDF opens first — save it, then attach it to the email that opens automatically.
+        💡 For Gmail: Gmail compose opens first, then the PDF opens automatically — save the PDF and attach it to the email before sending.
       </p>
     </div>
   )
