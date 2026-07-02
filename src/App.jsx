@@ -1,27 +1,57 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { T, Logo, Badge } from './components/ui.jsx'
 import AuditTool from './modules/AuditTool.jsx'
 import SetupBlueprint from './modules/SetupBlueprint.jsx'
-import ProposalBuilder from './modules/ProposalBuilder.jsx'
-import PitchScript from './modules/PitchScript.jsx'
+import { ProposalBuilder } from './modules/ProposalBuilder.jsx'
+import { PitchScript } from './modules/ProposalBuilder.jsx'
 import ClientTracker from './modules/ClientTracker.jsx'
 import AITools from './modules/AITools.jsx'
 import RevenueDashboard from './modules/RevenueDashboard.jsx'
 import Settings from './modules/Settings.jsx'
 
 const MODULES = [
-  { id: 'dashboard', icon: '💰', label: 'Dashboard', short: 'Dashboard' },
-  { id: 'clients', icon: '📊', label: 'Client Tracker', short: 'Clients' },
-  { id: 'audit', icon: '🔍', label: 'Audit Tool', short: 'Audit' },
-  { id: 'blueprint', icon: '📋', label: 'GBP Blueprint', short: 'Blueprint' },
-  { id: 'proposal', icon: '📝', label: 'Proposal Builder', short: 'Proposal' },
-  { id: 'pitch', icon: '🎯', label: 'Pitch Script', short: 'Pitch' },
-  { id: 'ai', icon: '🤖', label: 'AI Tools', short: 'AI Tools' },
-  { id: 'settings', icon: '⚙️', label: 'Settings', short: 'Settings' },
+  { id: 'dashboard', icon: '💰', label: 'Dashboard',      short: 'Dashboard' },
+  { id: 'clients',   icon: '📊', label: 'Client Tracker', short: 'Clients'  },
+  { id: 'audit',     icon: '🔍', label: 'Audit Tool',     short: 'Audit'    },
+  { id: 'blueprint', icon: '📋', label: 'GBP Blueprint',  short: 'Blueprint'},
+  { id: 'proposal',  icon: '📝', label: 'Proposal Builder',short: 'Proposal' },
+  { id: 'pitch',     icon: '🎯', label: 'Pitch Script',   short: 'Pitch'    },
+  { id: 'ai',        icon: '🤖', label: 'AI Tools',       short: 'AI Tools' },
+  { id: 'settings',  icon: '⚙️', label: 'Settings',       short: 'Settings' },
 ]
 
 export default function App() {
   const [active, setActive] = useState('dashboard')
+  const [proposalPrefill, setProposalPrefill] = useState(null)
+
+  // ✅ Listen for audit-to-proposal navigation event
+  useEffect(() => {
+    const handleNav = (e) => {
+      const target = e.detail
+      setActive(target)
+      if (target === 'proposal') {
+        // Read pre-fill data from localStorage
+        try {
+          const raw = localStorage.getItem('fds_gbp_audit_prefill')
+          if (raw) {
+            const data = JSON.parse(raw)
+            // Only use if fresh (within last 60 seconds)
+            if (Date.now() - data.timestamp < 60000) {
+              setProposalPrefill(data)
+            }
+            localStorage.removeItem('fds_gbp_audit_prefill')
+          }
+        } catch(e) {}
+      }
+    }
+    window.addEventListener('fds-navigate', handleNav)
+    return () => window.removeEventListener('fds-navigate', handleNav)
+  }, [])
+
+  const handleNavClick = (id) => {
+    setActive(id)
+    if (id !== 'proposal') setProposalPrefill(null)
+  }
 
   const renderModule = () => {
     switch(active) {
@@ -29,7 +59,7 @@ export default function App() {
       case 'clients':   return <ClientTracker />
       case 'audit':     return <AuditTool />
       case 'blueprint': return <SetupBlueprint />
-      case 'proposal':  return <ProposalBuilder />
+      case 'proposal':  return <ProposalBuilder prefill={proposalPrefill} />
       case 'pitch':     return <PitchScript />
       case 'ai':        return <AITools />
       case 'settings':  return <Settings />
@@ -50,14 +80,12 @@ export default function App() {
         <Logo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Badge color={T.gold} bg={T.goldLight}>GBP Pro</Badge>
-          <span style={{ fontSize: 11, color: T.textLight, display: 'none' }}>v1.0</span>
         </div>
       </div>
 
-      {/* DESKTOP SIDEBAR + CONTENT */}
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 62px)' }}>
 
-        {/* SIDEBAR — desktop only */}
+        {/* SIDEBAR — desktop */}
         <div style={{
           width: 220, background: T.dark, flexShrink: 0,
           display: 'flex', flexDirection: 'column', paddingTop: 20,
@@ -66,14 +94,13 @@ export default function App() {
           <div style={{ padding: '0 12px 20px', borderBottom: `1px solid rgba(255,255,255,0.08)`, marginBottom: 12 }}>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>Navigation</div>
             {MODULES.map(m => (
-              <button key={m.id} onClick={() => setActive(m.id)} style={{
+              <button key={m.id} onClick={() => handleNavClick(m.id)} style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                 padding: '10px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
                 background: active === m.id ? `${T.blue}CC` : 'transparent',
                 color: active === m.id ? T.white : 'rgba(255,255,255,0.6)',
                 fontWeight: active === m.id ? 700 : 500, fontSize: 13,
-                marginBottom: 2, textAlign: 'left', fontFamily: 'inherit',
-                transition: 'all 0.15s',
+                marginBottom: 2, textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.15s',
               }}>
                 <span style={{ fontSize: 16, width: 20, textAlign: 'center' }}>{m.icon}</span>
                 {m.label}
@@ -82,8 +109,7 @@ export default function App() {
           </div>
           <div style={{ padding: '12px 12px', marginTop: 'auto' }}>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6 }}>
-              © Frankev Digital Services<br />
-              frankevgloballtd@gmail.com
+              © Frankev Digital Services<br />frankevgloballtd@gmail.com
             </div>
           </div>
         </div>
@@ -104,7 +130,7 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }} className="mobile-nav">
         {MODULES.map(m => (
-          <button key={m.id} onClick={() => setActive(m.id)} style={{
+          <button key={m.id} onClick={() => handleNavClick(m.id)} style={{
             flex: '0 0 auto', minWidth: 64, display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center', padding: '10px 8px 6px',
             border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit',
@@ -118,7 +144,6 @@ export default function App() {
         ))}
       </div>
 
-      {/* RESPONSIVE STYLES */}
       <style>{`
         .desktop-sidebar { display: flex !important; }
         .mobile-nav { display: none !important; }
