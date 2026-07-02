@@ -189,7 +189,7 @@ Output ONLY this JSON array, nothing else:
                   {s.likelyInMapPack && <span style={{ background: '#16A34A', color: '#fff', padding: '1px 7px', borderRadius: 10, fontWeight: 700 }}>Likely in Map Pack</span>}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 6', flexShrink: 0, flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexDirection: 'column' }}>
                 <Btn size="sm" variant="success" onClick={() => onFound(i, s)}>Use This</Btn>
                 <a href={`https://www.google.com/maps/search/${encodeURIComponent(s.name + ' ' + city)}`} target="_blank" rel="noreferrer"
                   style={{ fontSize: 11, color: T.blue, textDecoration: 'none', textAlign: 'center', display: 'block', marginTop: 4 }}>
@@ -577,6 +577,42 @@ ${'═'.repeat(60)}`
       {generated&&(
         <div id="audit-report" style={{marginTop:20}} className="animate-fadeIn">
           <ShareBar text={buildReport()} title={`GBP Audit Report — ${biz.name||'Business'}`} businessName={biz.name} />
+
+          {/* ✅ AUDIT-TO-PROPOSAL PIPELINE BUTTON */}
+          <div style={{background:'linear-gradient(135deg,#1B4FD8,#7C3AED)',borderRadius:12,padding:18,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+            <div>
+              <p style={{fontWeight:800,fontSize:15,color:'#fff',margin:'0 0 4px'}}>🚀 Turn This Audit Into a Proposal</p>
+              <p style={{fontSize:12,color:'rgba(255,255,255,0.8)',margin:0}}>All audit data — client name, score, problems found, top competitor — pre-filled automatically into the Proposal Builder.</p>
+            </div>
+            <button
+              onClick={() => {
+                // Build the pre-fill data and store it for Proposal Builder to pick up
+                const auditData = {
+                  clientBusiness: biz.name,
+                  clientAddress: biz.address,
+                  clientIndustry: biz.industry,
+                  clientCity: biz.city,
+                  auditScore: String(scores.pct),
+                  painPoints: CHECKS.filter(([,k])=>checks[k]===false).slice(0,5).map(([label])=>label).join('\n'),
+                  competitorName: comps.find(c=>c.name)?.name||'',
+                  competitorReviews: comps.find(c=>c.name)?.reviews||'',
+                  competitorRating: comps.find(c=>c.name)?.rating||'',
+                  fromAudit: true,
+                  timestamp: Date.now()
+                }
+                localStorage.setItem('fds_gbp_audit_prefill', JSON.stringify(auditData))
+                window.dispatchEvent(new CustomEvent('fds-navigate', { detail: 'proposal' }))
+              }}
+              style={{
+                padding:'12px 24px',background:'#fff',color:'#1B4FD8',
+                border:'none',borderRadius:9,fontWeight:800,fontSize:14,
+                cursor:'pointer',fontFamily:'inherit',flexShrink:0,
+                boxShadow:'0 2px 8px rgba(0,0,0,0.2)'
+              }}>
+              📝 Create Proposal from This Audit →
+            </button>
+          </div>
+
           <Card style={{background:T.dark}}>
             <div style={{marginBottom:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{fontSize:11,color:'#64748B',fontWeight:600}}>AUDIT REPORT — {biz.name||'Business'}</span>
