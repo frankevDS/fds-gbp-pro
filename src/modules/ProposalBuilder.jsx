@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { T, Btn, Card, Input, Select, Field, SectionHeader, copyText } from '../components/ui.jsx'
 import { getSettings } from '../utils/storage.js'
 
@@ -146,7 +146,7 @@ function ShareBar({ text, title, clientEmail }) {
 }
 
 // ─── PROPOSAL BUILDER ─────────────────────────────────────────────────────────
-export function ProposalBuilder() {
+export function ProposalBuilder({ prefill = null }) {
   const settings = getSettings()
   const cur = settings.currency || '₵'
 
@@ -160,6 +160,23 @@ export function ProposalBuilder() {
     proposalDate: new Date().toISOString().split('T')[0],
     painPoints: '', customNote: '',
   })
+
+  // ✅ Auto-fill from audit pipeline when prefill data is passed
+  useEffect(() => {
+    if (prefill && prefill.fromAudit) {
+      setF(prev => ({
+        ...prev,
+        clientBusiness: prefill.clientBusiness || prev.clientBusiness,
+        clientAddress: prefill.clientAddress || prev.clientAddress,
+        clientIndustry: prefill.clientIndustry || prev.clientIndustry,
+        auditScore: prefill.auditScore || prev.auditScore,
+        painPoints: prefill.painPoints || prev.painPoints,
+        competitorName: prefill.competitorName || prev.competitorName,
+        competitorReviews: prefill.competitorReviews || prev.competitorReviews,
+        competitorRating: prefill.competitorRating || prev.competitorRating,
+      }))
+    }
+  }, [prefill])
   const [generated, setGenerated] = useState(false)
   const set = (k, v) => setF(p => ({ ...p, [k]: v }))
 
