@@ -94,7 +94,7 @@ export default function App() {
             ))}
           </div>
           <div style={{padding:12,marginTop:'auto'}}>
-            <div style={{fontSize:11,color:'rgba(255,255,255,0.3)',lineHeight:1.6}}>© Frankev Digital Services<br/>frankevgloballtd@gmail.com</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,0.3)',lineHeight:1.6}}>© Frankev Digital Services<br/>hispraise01@gmail.com</div>
           </div>
         </div>
 

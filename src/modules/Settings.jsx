@@ -55,7 +55,7 @@ export default function Settings({onLogout}){
           <h3 style={{margin:'0 0 14px',fontSize:15,fontWeight:800,color:T.dark}}>👤 Your Details</h3>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <Field label="Your Name"><input value={f.yourName||''} onChange={e=>set('yourName',e.target.value)} placeholder="e.g. Abiodun" style={{width:'100%',padding:'10px 13px',border:`1.5px solid ${T.grayBorder}`,borderRadius:8,fontSize:14,fontFamily:'inherit',background:T.grayLight,outline:'none',boxSizing:'border-box'}}/></Field>
-            <Field label="Your Email"><input value={f.yourEmail||''} onChange={e=>set('yourEmail',e.target.value)} placeholder="frankevgloballtd@gmail.com" style={{width:'100%',padding:'10px 13px',border:`1.5px solid ${T.grayBorder}`,borderRadius:8,fontSize:14,fontFamily:'inherit',background:T.grayLight,outline:'none',boxSizing:'border-box'}}/></Field>
+            <Field label="Your Email"><input value={f.yourEmail||''} onChange={e=>set('yourEmail',e.target.value)} placeholder="e.g. hispraise01@gmail.com" style={{width:'100%',padding:'10px 13px',border:`1.5px solid ${T.grayBorder}`,borderRadius:8,fontSize:14,fontFamily:'inherit',background:T.grayLight,outline:'none',boxSizing:'border-box'}}/></Field>
             <Field label="WhatsApp"><input value={f.whatsapp||''} onChange={e=>set('whatsapp',e.target.value)} placeholder="+233 XX XXX XXXX" style={{width:'100%',padding:'10px 13px',border:`1.5px solid ${T.grayBorder}`,borderRadius:8,fontSize:14,fontFamily:'inherit',background:T.grayLight,outline:'none',boxSizing:'border-box'}}/></Field>
             <Field label="Base City"><input value={f.baseCity||''} onChange={e=>set('baseCity',e.target.value)} placeholder="e.g. Accra" style={{width:'100%',padding:'10px 13px',border:`1.5px solid ${T.grayBorder}`,borderRadius:8,fontSize:14,fontFamily:'inherit',background:T.grayLight,outline:'none',boxSizing:'border-box'}}/></Field>
           </div>
@@ -94,7 +94,7 @@ export default function Settings({onLogout}){
           <p>Click <strong>⊕</strong> in address bar → <strong>Install</strong></p>
         </div>
         <div style={{marginTop:16,padding:'12px 16px',background:T.blueLight,borderRadius:10,fontSize:13,color:'#1E40AF'}}>
-          <strong>FDS GBP Pro v2.0</strong> · Frankev Digital Services · frankevgloballtd@gmail.com
+          <strong>FDS GBP Pro v2.0</strong> · Frankev Digital Services · hispraise01@gmail.com
         </div>
       </Card>}
     </div>

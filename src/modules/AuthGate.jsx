@@ -8,8 +8,9 @@ const T = {
   danger:'#DC2626',dangerLight:'#FEF2F2',text:'#1E293B',textLight:'#64748B'
 }
 
-const SUPER_ADMIN_EMAIL = 'frankevgloballtd@gmail.com'
-const SUPER_ADMIN_NAME  = 'Abiodun'
+const SUPER_ADMIN_EMAIL  = 'frankevgloballtd@gmail.com'  // SECRET — never shown publicly
+const SUPER_ADMIN_NAME   = 'Abiodun'
+const PUBLIC_CONTACT     = 'hispraise01@gmail.com'          // Shown on login screen
 
 // ─── SESSION (browser tab only — intentional) ────────────────────────────────
 export function getAuthSession() {
@@ -127,7 +128,7 @@ function SuperAdminBypass({ onSuccess, onClose }) {
         <div style={{fontSize:40,marginBottom:12}}>🔑</div>
         <h2 style={{fontSize:18,fontWeight:900,color:T.dark,margin:'0 0 6px'}}>Super Admin Entry</h2>
         <p style={{fontSize:13,color:T.textLight,marginBottom:20,lineHeight:1.6}}>Enter the super admin email to bypass all PIN checks and access the app directly.</p>
-        <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setError('')}} onKeyDown={e=>e.key==='Enter'&&handleBypass()} placeholder="frankevgloballtd@gmail.com" autoFocus
+        <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setError('')}} onKeyDown={e=>e.key==='Enter'&&handleBypass()} placeholder="Enter super admin email" autoFocus
           style={{width:'100%',padding:'13px 16px',border:`1.5px solid ${error?T.danger:T.grayBorder}`,borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:12,color:T.dark,background:'#F8FAFF'}}/>
         {error&&<p style={{color:T.danger,fontSize:13,marginBottom:12}}>{error}</p>}
         <button onClick={handleBypass} disabled={!email.trim()} style={{width:'100%',padding:'13px',borderRadius:12,border:'none',background:!email.trim()?'#CBD5E1':'linear-gradient(135deg,#1B4FD8,#7C3AED)',color:'#fff',fontWeight:800,fontSize:15,cursor:!email.trim()?'not-allowed':'pointer',fontFamily:'inherit',marginBottom:10}}>
@@ -177,7 +178,7 @@ export default function AuthGate({ onAuthenticated }) {
       }
       const user=cfg.approvedUsers.find(u=>u.pin===pin&&u.approved&&u.role!=='admin')
       if (user) { setAuthSession(user); onAuthenticated(user); return }
-      showErr('Incorrect PIN. Contact Abiodun at frankevgloballtd@gmail.com for your access PIN.')
+      showErr('Incorrect PIN. Contact Abiodun at ' + PUBLIC_CONTACT + ' to request access.')
     } catch(e) { showErr('Connection error. Check your internet and try again.') }
     setLoading(false)
   }
@@ -191,7 +192,7 @@ export default function AuthGate({ onAuthenticated }) {
       const cfg = await getAuthConfig()
       const user=cfg.approvedUsers.find(u=>u.email.toLowerCase()===e&&u.approved)
       if (user) { setStep(2); setError('') }
-      else { showErr('Email not on approved list. Contact Abiodun at frankevgloballtd@gmail.com.') }
+      else { showErr('Email not on approved list. Contact Abiodun at ' + PUBLIC_CONTACT + ' to request access.') }
     } catch(e) { showErr('Connection error. Check your internet and try again.') }
     setLoading(false)
   }
@@ -266,7 +267,7 @@ export default function AuthGate({ onAuthenticated }) {
           </div>
         )}
 
-        <p style={{fontSize:11,color:T.textLight,marginTop:24,lineHeight:1.7}}>No access? Contact <strong>Abiodun</strong><br/>frankevgloballtd@gmail.com</p>
+        <p style={{fontSize:11,color:T.textLight,marginTop:24,lineHeight:1.7}}>No access? Contact <strong>Abiodun</strong><br/><a href={'mailto:' + PUBLIC_CONTACT} style={{color:T.blue,textDecoration:'none'}}>{PUBLIC_CONTACT}</a></p>
       </div>
 
       {showBypass&&<SuperAdminBypass onSuccess={(u)=>{setShowBypass(false);onAuthenticated(u)}} onClose={()=>setShowBypass(false)}/>}

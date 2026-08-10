@@ -106,7 +106,7 @@ Website : ${form.website||'—'}
 Check: Website • Facebook • Instagram • Apple Maps • Bing
 ${'═'.repeat(60)}
 Prepared by Frankev Digital Services
-frankevgloballtd@gmail.com | gbp.frankevdigitalservices.com`
+hispraise01@gmail.com | gbp.frankevdigitalservices.com`
 
   const stepContent = () => {
     const g2={display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}

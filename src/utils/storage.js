@@ -9,7 +9,7 @@ export function saveClients(c){storage.set('clients',c)}
 export function addClient(client){const clients=getClients();const n={...client,id:Date.now().toString(),createdAt:new Date().toISOString()};saveClients([n,...clients]);return n}
 export function updateClient(id,updates){saveClients(getClients().map(c=>c.id===id?{...c,...updates,updatedAt:new Date().toISOString()}:c))}
 export function deleteClient(id){saveClients(getClients().filter(c=>c.id!==id))}
-export function getSettings(){return storage.get('settings',{groqKey:'',yourName:'Abiodun',yourEmail:'frankevgloballtd@gmail.com',currency:'₵',country:'Ghana'})}
+export function getSettings(){return storage.get('settings',{groqKey:'',yourName:'Abiodun',yourEmail:'hispraise01@gmail.com',currency:'₵',country:'Ghana'})}
 export function saveSettings(s){storage.set('settings',s)}
 export function getAuditHistory(){return storage.get('audit_history',[])}
 export function saveAuditToHistory(data){const h=getAuditHistory();const e={id:Date.now().toString(),savedAt:new Date().toISOString(),...data};storage.set('audit_history',[e,...h].slice(0,10));return e}

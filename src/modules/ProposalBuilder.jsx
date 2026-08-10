@@ -43,7 +43,7 @@ function downloadPDF(text, filename) {
   </head><body>
     <div class="header">
       <h1>FRANKEV DIGITAL SERVICES</h1>
-      <p>frankevgloballtd@gmail.com | gbp.frankevdigitalservices.com</p>
+      <p>hispraise01@gmail.com | gbp.frankevdigitalservices.com</p>
     </div>
     <pre>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
     <script>
@@ -156,7 +156,7 @@ export function ProposalBuilder({ prefill = null }) {
     auditScore: '', competitorName: '', competitorReviews: '', competitorRating: '',
     starterPrice: '', growthPrice: '', premiumPrice: '',
     yourName: settings.yourName || 'Abiodun',
-    yourEmail: settings.yourEmail || 'frankevgloballtd@gmail.com',
+    yourEmail: settings.yourEmail || 'hispraise01@gmail.com',
     proposalDate: new Date().toISOString().split('T')[0],
     painPoints: '', customNote: '',
   })
@@ -305,7 +305,7 @@ To accept this proposal or ask any questions:
 This proposal is valid for 14 days from ${f.proposalDate}.
 ${'═'.repeat(60)}
 Frankev Digital Services — Helping local businesses get found.
-frankevgloballtd@gmail.com | gbp.frankevdigitalservices.com
+hispraise01@gmail.com | gbp.frankevdigitalservices.com
 ${'═'.repeat(60)}`
 
   return (
@@ -543,7 +543,7 @@ You are not selling. You are showing them a problem
 they didn't know they had, and offering to solve it.
 Confidence comes from knowing their numbers before you walk in.
 ${'═'.repeat(60)}
-Frankev Digital Services — frankevgloballtd@gmail.com
+Frankev Digital Services — hispraise01@gmail.com
 ${'═'.repeat(60)}`
 
   return (

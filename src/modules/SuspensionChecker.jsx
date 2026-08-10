@@ -87,7 +87,7 @@ ${totalScore === 0
 }
 ${'═'.repeat(60)}
 Prepared by: Frankev Digital Services
-frankevgloballtd@gmail.com | gbp.frankevdigitalservices.com
+hispraise01@gmail.com | gbp.frankevdigitalservices.com
 ${'═'.repeat(60)}`
 
   return (

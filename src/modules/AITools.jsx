@@ -51,7 +51,7 @@ export function openPrintWindow(text, title) {
           <div class="logo-box">GBP</div>
           <div class="brand">
             <div class="brand-name">Frankev Digital Services</div>
-            <div class="brand-sub">${settings.yourEmail || 'frankevgloballtd@gmail.com'}</div>
+            <div class="brand-sub">${settings.yourEmail || 'hispraise01@gmail.com'}</div>
           </div>
         </div>
         <div>
@@ -61,7 +61,7 @@ export function openPrintWindow(text, title) {
       </div>
       <pre id="rc"></pre>
       <div class="footer">
-        <div><div class="footer-brand">Frankev Digital Services</div><div>${settings.yourEmail || 'frankevgloballtd@gmail.com'}</div></div>
+        <div><div class="footer-brand">Frankev Digital Services</div><div>${settings.yourEmail || 'hispraise01@gmail.com'}</div></div>
         <div>gbp.frankevdigitalservices.com</div>
       </div>
     </div>
@@ -116,7 +116,7 @@ For any questions about your Google Business Profile, contact us at any time.
 Best regards,
 ${settings.yourName || 'Abiodun'}
 Frankev Digital Services
-${settings.yourEmail || 'frankevgloballtd@gmail.com'}
+${settings.yourEmail || 'hispraise01@gmail.com'}
 gbp.frankevdigitalservices.com`
 
   const safeBody = emailBody.replace(/[^\x20-\x7E\n]/g, '').substring(0, 1900)
@@ -131,7 +131,7 @@ gbp.frankevdigitalservices.com`
 
 export function sendViaWhatsApp(text, title) {
   const settings = getSettings()
-  const header = `*${title}*\n_Frankev Digital Services_\n_${settings.yourEmail || 'frankevgloballtd@gmail.com'}_\n\n`
+  const header = `*${title}*\n_Frankev Digital Services_\n_${settings.yourEmail || 'hispraise01@gmail.com'}_\n\n`
   const msg = (header + text).substring(0, 4096)
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
 }
@@ -306,7 +306,7 @@ function MonthlyReport() {
     setLoading(false)
   }
   const settings = getSettings()
-  const fullReport = result ? `FRANKEV DIGITAL SERVICES\nMONTHLY GBP PERFORMANCE REPORT\n${'═'.repeat(52)}\nBusiness : ${f.businessName}\nLocation : ${f.city}\nMonth    : ${f.month}\nPrepared : ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}\n${'═'.repeat(52)}\n\nSTATS SUMMARY\n${'─'.repeat(52)}\nProfile Views         : ${f.views||'—'}\nSearch Appearances    : ${f.searches||'—'}\nPhone Calls           : ${f.calls||'—'}\nDirection Requests    : ${f.directions||'—'}\nWebsite Clicks        : ${f.websiteClicks||'—'}\nNew Reviews           : ${f.reviews||'—'}\nPhoto Views           : ${f.photosViews||'—'}\nTop Post              : ${f.topPosts||'—'}\n\n${'─'.repeat(52)}\nPERFORMANCE ANALYSIS & RECOMMENDATIONS\n${'─'.repeat(52)}\n${result}\n${'═'.repeat(52)}\nPrepared by: ${settings.yourName||'Abiodun'}\nFrankev Digital Services\n${settings.yourEmail||'frankevgloballtd@gmail.com'}\ngbp.frankevdigitalservices.com\n${'═'.repeat(52)}` : ''
+  const fullReport = result ? `FRANKEV DIGITAL SERVICES\nMONTHLY GBP PERFORMANCE REPORT\n${'═'.repeat(52)}\nBusiness : ${f.businessName}\nLocation : ${f.city}\nMonth    : ${f.month}\nPrepared : ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}\n${'═'.repeat(52)}\n\nSTATS SUMMARY\n${'─'.repeat(52)}\nProfile Views         : ${f.views||'—'}\nSearch Appearances    : ${f.searches||'—'}\nPhone Calls           : ${f.calls||'—'}\nDirection Requests    : ${f.directions||'—'}\nWebsite Clicks        : ${f.websiteClicks||'—'}\nNew Reviews           : ${f.reviews||'—'}\nPhoto Views           : ${f.photosViews||'—'}\nTop Post              : ${f.topPosts||'—'}\n\n${'─'.repeat(52)}\nPERFORMANCE ANALYSIS & RECOMMENDATIONS\n${'─'.repeat(52)}\n${result}\n${'═'.repeat(52)}\nPrepared by: ${settings.yourName||'Abiodun'}\nFrankev Digital Services\n${settings.yourEmail||'hispraise01@gmail.com'}\ngbp.frankevdigitalservices.com\n${'═'.repeat(52)}` : ''
   return (
     <AICard icon="📈" title="Monthly Report Generator" subtitle="Enter stats — AI writes the analysis. Download PDF or send to client." result={fullReport} resultTitle={`GBP Monthly Report — ${f.businessName} — ${f.month}`}>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:12 }}>

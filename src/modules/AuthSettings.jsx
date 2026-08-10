@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { T, Btn, Card, Input, Field, SectionHeader } from '../components/ui.jsx'
 import { getAuthConfig, addApprovedUser, removeUser, updateMasterPin, clearAuthSession, isAdmin } from './AuthGate.jsx'
 
+const PUBLIC_CONTACT = 'hispraise01@gmail.com'
+
 export default function AuthSettings({ onLogout }) {
   const [config, setConfig] = useState({ masterPin:'', approvedUsers:[] })
   const [loadingConfig, setLoadingConfig] = useState(true)
@@ -85,7 +87,7 @@ export default function AuthSettings({ onLogout }) {
       <Card style={{marginBottom:20,background:'linear-gradient(135deg,#EEF3FF,#F5F3FF)',border:`1px solid #C7D8FF`}}>
         <p style={{fontWeight:800,fontSize:14,color:T.dark,margin:'0 0 6px'}}>👑 Super Admin Bypass</p>
         <p style={{fontSize:13,color:T.textLight,margin:0,lineHeight:1.7}}>
-          If locked out from any device, tap the <strong>GBP logo 3 times quickly</strong> on the login screen → enter <strong>frankevgloballtd@gmail.com</strong> → instant entry. Always works.
+          If locked out from any device, tap the <strong>GBP logo 3 times quickly</strong> on the login screen → enter <strong>{PUBLIC_CONTACT}</strong> → instant entry. Always works.
         </p>
       </Card>
 
@@ -155,7 +157,7 @@ export default function AuthSettings({ onLogout }) {
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 14px',background:'linear-gradient(135deg,#EEF3FF,#F5F3FF)',borderRadius:9,marginTop:8,border:`1px solid #C7D8FF`}}>
           <div>
             <div style={{fontWeight:700,fontSize:13,color:T.dark}}>Abiodun 👑</div>
-            <div style={{fontSize:12,color:T.textLight}}>frankevgloballtd@gmail.com</div>
+            <div style={{fontSize:12,color:T.textLight}}>{PUBLIC_CONTACT}</div>
           </div>
           <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:10,background:T.blue,color:'#fff'}}>SUPER ADMIN</span>
         </div>

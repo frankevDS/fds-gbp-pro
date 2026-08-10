@@ -328,7 +328,7 @@ ${notes||'None'}
 ${'═'.repeat(60)}
 Prepared by: ${settings.yourName||'Abiodun'}
 Frankev Digital Services
-${settings.yourEmail||'frankevgloballtd@gmail.com'}
+${settings.yourEmail||'hispraise01@gmail.com'}
 gbp.frankevdigitalservices.com
 ${'═'.repeat(60)}`
   }

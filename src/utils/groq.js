@@ -1,7 +1,7 @@
 import { getSettings } from './storage.js'
 const GROQ_MODEL = 'qwen/qwen3.6-27b'
 async function callGroq(system, user, maxTokens=1024) {
-  const key = import.meta.env.VITE_GROQ_API_KEY || getSettings().groqKey
+  const key = import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_GROQ_API || getSettings().groqKey
   if (!key) throw new Error('NO_KEY')
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method:'POST',
