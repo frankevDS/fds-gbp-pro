@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { T, Btn, Card, Input, Field, SectionHeader } from '../components/ui.jsx'
 import { getSettings, saveSettings } from '../utils/storage.js'
 import AuthSettings from './AuthSettings.jsx'
+import { getAuthSession } from './AuthGate.jsx'
+import { hasPermission } from '../utils/roles.js'
 
 const COUNTRIES=[
   {name:'Ghana',symbol:'₵',code:'GHS',flag:'🇬🇭'},{name:'Nigeria',symbol:'₦',code:'NGN',flag:'🇳🇬'},
@@ -31,7 +33,9 @@ export default function Settings({onLogout}){
       <div style={{display:'flex',gap:8,marginBottom:24,flexWrap:'wrap'}}>
         <button style={ts('general')} onClick={()=>setTab('general')}>🌍 General</button>
         <button style={ts('ai')} onClick={()=>setTab('ai')}>🤖 AI / Groq</button>
-        <button style={ts('access')} onClick={()=>setTab('access')}>🔐 Access Control</button>
+        {hasPermission(getAuthSession(), 'settings_access') && (
+          <button style={ts('access')} onClick={()=>setTab('access')}>🔐 Access Control</button>
+        )}
         <button style={ts('install')} onClick={()=>setTab('install')}>📱 Install</button>
       </div>
 
