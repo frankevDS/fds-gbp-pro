@@ -8,14 +8,11 @@ const T = {
   danger:'#DC2626', dangerLight:'#FEF2F2', textLight:'#444444'
 }
 
-// ─── SUPER ADMIN — hardcoded, always works, never shown publicly ───────────────
 const SUPER_ADMIN_EMAIL = 'frankevgloballtd@gmail.com'
 const SUPER_ADMIN_NAME  = 'Abiodun'
+const PUBLIC_CONTACT    = 'hispraise01@gmail.com'
 
-// ─── PUBLIC CONTACT (shown on login screen) ───────────────────────────────────
-const PUBLIC_CONTACT = 'hispraise01@gmail.com'
-
-// ─── SESSION HELPERS ──────────────────────────────────────────────────────────
+// ─── SESSION ──────────────────────────────────────────────────────────────────
 export function getAuthSession() {
   try { const s = sessionStorage.getItem('fds_session'); return s ? JSON.parse(s) : null } catch { return null }
 }
@@ -33,7 +30,7 @@ export function isAuthenticated() {
 }
 export function isAdmin() { return getAuthSession()?.role === 'admin' }
 
-// ─── CLOUD CONFIG HELPERS ─────────────────────────────────────────────────────
+// ─── CLOUD CONFIG ─────────────────────────────────────────────────────────────
 export async function getAuthConfig() { return await readDB() }
 export async function saveAuthConfig(config) { clearCache(); return await writeDB(config) }
 
@@ -84,24 +81,22 @@ function PinPad({ onComplete, label, disabled }) {
 
   return (
     <div style={{ opacity: disabled ? 0.5 : 1 }}>
-      <p style={{ fontSize: 13, color: T.textLight, marginBottom: 18, textAlign: 'center', fontWeight: 500 }}>{label}</p>
-      {/* PIN dots */}
-      <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginBottom: 26 }}>
+      <p style={{ fontSize: 13, color: T.textLight, marginBottom: 16, textAlign: 'center', fontWeight: 500 }}>{label}</p>
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 24 }}>
         {[0,1,2,3].map(i => (
-          <div key={i} style={{ width: 54, height: 62, borderRadius: 12, border: `2px solid ${digits.length > i ? T.blue : T.grayBorder}`, background: digits.length > i ? T.blueLight : '#F8FAFF', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s' }}>
-            {digits.length > i && <div style={{ width: 16, height: 16, borderRadius: '50%', background: T.blue }} />}
+          <div key={i} style={{ width: 52, height: 60, borderRadius: 12, border: `2px solid ${digits.length > i ? T.blue : T.grayBorder}`, background: digits.length > i ? T.blueLight : '#F8FAFF', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s' }}>
+            {digits.length > i && <div style={{ width: 14, height: 14, borderRadius: '50%', background: T.blue }} />}
           </div>
         ))}
       </div>
-      {/* Keys */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, maxWidth: 300, margin: '0 auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 9, maxWidth: 290, margin: '0 auto' }}>
         {keys.map((k, i) => (
           <button key={i} onClick={() => k !== '' && press(k)}
             onMouseDown={e => { if (k !== '') e.currentTarget.style.transform = 'scale(0.92)' }}
             onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)' }}
             onTouchStart={e => { if (k !== '') e.currentTarget.style.transform = 'scale(0.92)' }}
             onTouchEnd={e => { e.currentTarget.style.transform = 'scale(1)' }}
-            style={{ height: 62, borderRadius: 14, border: k === '' ? 'none' : `1.5px solid ${T.grayBorder}`, background: k === '' ? 'transparent' : '#fff', fontSize: k === '⌫' ? 22 : 24, fontWeight: 700, color: '#000', cursor: k === '' ? 'default' : 'pointer', boxShadow: k !== '' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none', transition: 'transform 0.1s', opacity: k === '' ? 0 : 1, pointerEvents: k === '' ? 'none' : 'auto', fontFamily: 'inherit' }}>{k}
+            style={{ height: 60, borderRadius: 12, border: k === '' ? 'none' : `1.5px solid ${T.grayBorder}`, background: k === '' ? 'transparent' : '#fff', fontSize: k === '⌫' ? 22 : 24, fontWeight: 700, color: '#000', cursor: k === '' ? 'default' : 'pointer', boxShadow: k !== '' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none', transition: 'transform 0.1s', opacity: k === '' ? 0 : 1, pointerEvents: k === '' ? 'none' : 'auto', fontFamily: 'inherit' }}>{k}
           </button>
         ))}
       </div>
@@ -110,37 +105,35 @@ function PinPad({ onComplete, label, disabled }) {
 }
 
 // ─── SUPER ADMIN BYPASS ───────────────────────────────────────────────────────
-// Activated by tapping GBP logo 3 times. Enter super admin email — instant access.
-// Email address is never shown anywhere on the login screen.
 function SuperAdminBypass({ onSuccess, onClose }) {
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
 
   const attempt = () => {
     if (email.trim().toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
-      const u = { id: 'super_admin', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'admin' }
+      const u = { id: 'super_admin', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'super_admin' }
       setAuthSession(u)
       onSuccess(u)
     } else {
-      setError('Incorrect. This entry is for authorised access only.')
+      setError('Incorrect. Authorised access only.')
       setTimeout(() => setError(''), 4000)
     }
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 360, padding: '32px 28px', textAlign: 'center', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>🔑</div>
-        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#000', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Admin Entry</h2>
-        <p style={{ fontSize: 13, color: T.textLight, marginBottom: 20, lineHeight: 1.6 }}>Enter your authorised email address to access directly.</p>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#000', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Emergency Admin Entry</h2>
+        <p style={{ fontSize: 13, color: T.textLight, marginBottom: 20, lineHeight: 1.6 }}>Enter your authorised email address for immediate access.</p>
         <input type="email" value={email} onChange={e => { setEmail(e.target.value); setError('') }}
           onKeyDown={e => e.key === 'Enter' && attempt()}
-          placeholder="Enter email address" autoFocus
+          placeholder="Enter admin email address" autoFocus
           style={{ width: '100%', padding: '13px 16px', border: `1.5px solid ${error ? T.danger : T.grayBorder}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 12, color: '#000', background: '#F8FAFF' }} />
         {error && <p style={{ color: T.danger, fontSize: 13, marginBottom: 12 }}>{error}</p>}
         <button onClick={attempt} disabled={!email.trim()}
           style={{ width: '100%', padding: '13px', borderRadius: 12, border: 'none', background: !email.trim() ? '#CBD5E1' : 'linear-gradient(135deg,#1B4FD8,#7C3AED)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: !email.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', marginBottom: 10 }}>
-          Enter →
+          Enter App →
         </button>
         <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.textLight, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>← Back to login</button>
       </div>
@@ -148,17 +141,18 @@ function SuperAdminBypass({ onSuccess, onClose }) {
   )
 }
 
-// ─── MAIN AUTH GATE ───────────────────────────────────────────────────────────
+// ─── MAIN AUTH GATE — EMAIL + PIN ONLY ───────────────────────────────────────
+// Everyone must use Email + PIN. No PIN-only login.
+// This prevents anyone who guesses or spies on a PIN from getting in.
 export default function AuthGate({ onAuthenticated }) {
-  const [mode, setMode]             = useState('pin')
   const [email, setEmail]           = useState('')
-  const [step, setStep]             = useState(1)
+  const [step, setStep]             = useState(1) // 1=email, 2=pin
+  const [verifiedUser, setVerifiedUser] = useState(null)
   const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
-  const [dbStatus, setDbStatus]     = useState('checking') // 'checking' | 'ok' | 'error'
+  const [dbStatus, setDbStatus]     = useState('checking')
   const [showBypass, setShowBypass] = useState(false)
 
-  // Logo tap counter — 3 taps in 2 seconds opens bypass
   const logoTaps  = useRef(0)
   const logoTimer = useRef(null)
 
@@ -174,13 +168,9 @@ export default function AuthGate({ onAuthenticated }) {
       .catch(e => {
         setDbStatus('error')
         if (e.message === 'NETWORK_ERROR') {
-          setError('No internet connection. Check your connection and refresh the page.')
-        } else if (e.message.includes('401') || e.message.includes('403') || e.message.includes('AUTH_ERROR')) {
-          setError('Database permission error. Contact Abiodun at ' + PUBLIC_CONTACT)
-        } else if (e.message.includes('NO_CONFIG')) {
-          setError('App setup incomplete. Contact Abiodun at ' + PUBLIC_CONTACT)
+          setError('No internet connection. Check your connection and refresh.')
         } else {
-          setError('Could not connect to database. Refresh and try again.')
+          setError('Cannot connect to database. Refresh and try again.')
         }
       })
   }, [])
@@ -194,151 +184,142 @@ export default function AuthGate({ onAuthenticated }) {
 
   const showErr = (msg) => { setError(msg); setTimeout(() => setError(''), 8000) }
 
-  // ── PIN LOGIN ────────────────────────────────────────────────────────────────
-  const handlePin = async (pin) => {
-    if (dbStatus !== 'ok') return
-    setLoading(true)
-    try {
-      const cfg = await readDB()
-
-      // Check master PIN (from Supabase — not hardcoded)
-      if (pin === cfg.masterPin) {
-        const u = { id: 'master', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'admin' }
-        setAuthSession(u); onAuthenticated(u); return
-      }
-
-      // Check any approved user PIN
-      const user = cfg.approvedUsers.find(u =>
-        u.pin === pin && u.approved === true && u.role !== 'admin'
-      )
-      if (user) { setAuthSession(user); onAuthenticated(user); return }
-
-      showErr('Incorrect PIN. Contact Abiodun at ' + PUBLIC_CONTACT + ' to get your access PIN.')
-    } catch(e) {
-      showErr('Login failed — ' + (e.message === 'NETWORK_ERROR' ? 'no internet connection.' : 'please refresh and try again.'))
-    }
-    setLoading(false)
-  }
-
-  // ── EMAIL CHECK ──────────────────────────────────────────────────────────────
-  const checkEmail = async () => {
+  // ── STEP 1: Verify Email ──────────────────────────────────────────────────
+  const handleEmailCheck = async () => {
     const e = email.trim().toLowerCase()
-    if (!e.includes('@')) { showErr('Enter a valid email address.'); return }
+    if (!e.includes('@') || !e.includes('.')) { showErr('Please enter a valid email address.'); return }
     setLoading(true)
     try {
       const cfg = await readDB()
+      // Check if it is the master admin email
+      if (e === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        setVerifiedUser({ id: 'master', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'admin', pin: cfg.masterPin })
+        setStep(2); setError('')
+        setLoading(false); return
+      }
+      // Check approved users list
       const user = cfg.approvedUsers.find(u => u.email.toLowerCase() === e && u.approved === true)
-      if (user) { setStep(2); setError('') }
-      else { showErr('This email is not on the approved list. Contact Abiodun at ' + PUBLIC_CONTACT + ' to request access.') }
+      if (user) {
+        setVerifiedUser(user)
+        setStep(2); setError('')
+      } else {
+        showErr('This email is not on the approved list. Contact Abiodun at ' + PUBLIC_CONTACT + ' to request access.')
+      }
     } catch(e) {
-      showErr('Could not verify email — ' + (e.message === 'NETWORK_ERROR' ? 'check your internet connection.' : 'please refresh and try again.'))
+      showErr(e.message === 'NETWORK_ERROR' ? 'No internet connection.' : 'Could not verify email — please refresh and try again.')
     }
     setLoading(false)
   }
 
-  // ── EMAIL + PIN ──────────────────────────────────────────────────────────────
-  const handleEmailPin = async (pin) => {
-    if (dbStatus !== 'ok') return
+  // ── STEP 2: Verify PIN ────────────────────────────────────────────────────
+  const handlePinCheck = async (pin) => {
+    if (!verifiedUser) return
     setLoading(true)
-    const e = email.trim().toLowerCase()
     try {
+      // Re-read from DB to get latest PIN (in case it was changed)
       const cfg = await readDB()
+      let user = verifiedUser
 
-      // Check master admin by email + PIN
-      if (e === SUPER_ADMIN_EMAIL.toLowerCase() && pin === cfg.masterPin) {
-        const u = { id: 'master', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'admin' }
-        setAuthSession(u); onAuthenticated(u); return
+      // If master admin
+      if (verifiedUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+        if (pin === cfg.masterPin) {
+          const u = { id: 'master', name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: 'admin' }
+          setAuthSession(u); onAuthenticated(u); return
+        } else {
+          showErr('Incorrect PIN. Try again.')
+          setLoading(false); return
+        }
       }
 
-      // Check approved users
-      const user = cfg.approvedUsers.find(u =>
-        u.email.toLowerCase() === e && u.pin === pin && u.approved === true
-      )
-      if (user) { setAuthSession(user); onAuthenticated(user); return }
+      // Regular user — get fresh data
+      const freshUser = cfg.approvedUsers.find(u => u.email.toLowerCase() === verifiedUser.email.toLowerCase() && u.approved)
+      if (!freshUser) { showErr('Your account has been removed. Contact Abiodun.'); setLoading(false); return }
 
-      showErr('Incorrect PIN for this email. Contact Abiodun at ' + PUBLIC_CONTACT + ' for your correct PIN.')
+      if (pin === freshUser.pin) {
+        setAuthSession(freshUser)
+        onAuthenticated(freshUser)
+      } else {
+        showErr('Incorrect PIN. Contact Abiodun at ' + PUBLIC_CONTACT + ' if you have forgotten your PIN.')
+      }
     } catch(e) {
-      showErr('Login failed — ' + (e.message === 'NETWORK_ERROR' ? 'no internet connection.' : 'please refresh and try again.'))
+      showErr(e.message === 'NETWORK_ERROR' ? 'No internet. Check connection.' : 'Login failed — refresh and try again.')
     }
     setLoading(false)
   }
-
-  const switchMode = (m) => { setMode(m); setError(''); setEmail(''); setStep(1) }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0F172A 0%,#1B4FD8 65%,#7C3AED 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#0A0F1E 0%,#1B4FD8 65%,#7C3AED 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
       <div style={{ background: '#fff', borderRadius: 24, width: '100%', maxWidth: 420, padding: '36px 32px 32px', textAlign: 'center', boxShadow: '0 32px 80px rgba(0,0,0,0.4)' }}>
 
         {/* Logo — tap 3× for bypass */}
         <div onClick={handleLogoTap} style={{ width: 72, height: 72, borderRadius: 18, margin: '0 auto 16px', background: 'linear-gradient(135deg,#1B4FD8,#7C3AED,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, fontWeight: 900, letterSpacing: 1, boxShadow: '0 8px 24px rgba(27,79,216,0.4)', cursor: 'pointer', userSelect: 'none', WebkitUserSelect: 'none' }}>GBP</div>
 
         <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', margin: '0 0 4px', letterSpacing: '-0.03em' }}>FDS GBP Pro</h1>
-        <p style={{ fontSize: 13, color: T.textLight, marginBottom: 24, fontWeight: 500 }}>Frankev Digital Services — Authorised Access Only</p>
+        <p style={{ fontSize: 13, color: T.textLight, marginBottom: 20, fontWeight: 500 }}>Frankev Digital Services — Authorised Access Only</p>
 
-        {/* DB Status indicator */}
+        {/* Security badge */}
+        <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10, padding: '8px 14px', marginBottom: 20, fontSize: 12, color: T.success, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+          🔐 Secure Login — Email + PIN Required
+        </div>
+
+        {/* DB Status */}
         {dbStatus === 'checking' && (
           <div style={{ background: '#F1F5F9', borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
-            <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span>
-            Connecting to database...
+            <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> Connecting to server...
           </div>
         )}
-        {dbStatus === 'ok' && (
-          <div style={{ background: T.successLight, border: '1px solid #86EFAC', borderRadius: 10, padding: '8px 14px', marginBottom: 16, fontSize: 12, color: T.success, fontWeight: 700 }}>
-            🔒 Secure · Centralised · All devices synced
-          </div>
-        )}
+
         {dbStatus === 'error' && (
           <div style={{ background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: T.danger, lineHeight: 1.5 }}>
             ⚠️ {error}
           </div>
         )}
 
-        {/* Mode tabs */}
         {dbStatus === 'ok' && (
           <>
-            <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 12, padding: 4, marginBottom: 28 }}>
-              {[['pin','🔢 PIN Login'],['email','📧 Email + PIN']].map(([m, label]) => (
-                <button key={m} onClick={() => switchMode(m)} style={{ flex: 1, padding: '10px 0', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, background: mode === m ? '#fff' : 'transparent', color: mode === m ? '#000' : T.textLight, fontWeight: mode === m ? 800 : 500, boxShadow: mode === m ? '0 2px 8px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.2s' }}>{label}</button>
-              ))}
+            {/* Progress indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 24 }}>
+              <div style={{ flex: 1, height: 3, borderRadius: '3px 0 0 3px', background: T.blue }} />
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: T.blue, color: '#fff', fontSize: 12, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 1 }}>1</div>
+              <div style={{ flex: 1, height: 3, background: step >= 2 ? T.blue : '#E2E8F0', transition: 'background 0.3s' }} />
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: step >= 2 ? T.blue : '#E2E8F0', color: step >= 2 ? '#fff' : '#999', fontSize: 12, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.3s' }}>2</div>
+              <div style={{ flex: 1, height: 3, borderRadius: '0 3px 3px 0', background: '#E2E8F0' }} />
             </div>
 
-            {/* PIN mode */}
-            {mode === 'pin' && (
-              <div>
-                <PinPad onComplete={handlePin} label="Enter your 4-digit access PIN" disabled={loading} />
-                {loading && <p style={{ fontSize: 13, color: T.textLight, marginTop: 14, fontWeight: 500 }}>🔄 Verifying with server...</p>}
-                {error && <div style={{ marginTop: 16, background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: T.danger, lineHeight: 1.5 }}>{error}</div>}
+            {/* STEP 1 — Email */}
+            {step === 1 && (
+              <div className="animate-fadeIn">
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#000', marginBottom: 6 }}>Step 1 — Enter your email</p>
+                <p style={{ fontSize: 13, color: T.textLight, marginBottom: 18 }}>Your approved Gmail or email address</p>
+                <input type="email" value={email}
+                  onChange={e => { setEmail(e.target.value); setError('') }}
+                  onKeyDown={e => e.key === 'Enter' && !loading && handleEmailCheck()}
+                  placeholder="yourname@gmail.com" autoFocus
+                  style={{ width: '100%', padding: '14px 16px', border: `1.5px solid ${error ? T.danger : T.grayBorder}`, borderRadius: 10, fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 12, color: '#000', background: '#F8FAFF', fontWeight: 500 }} />
+                {error && <div style={{ background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: T.danger, marginBottom: 12, lineHeight: 1.5, textAlign: 'left' }}>{error}</div>}
+                <button onClick={handleEmailCheck} disabled={loading || !email.trim()}
+                  style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: loading || !email.trim() ? '#CBD5E1' : 'linear-gradient(135deg,#1B4FD8,#3B6EF8)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: loading || !email.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                  {loading ? '🔄 Checking...' : 'Continue →'}
+                </button>
               </div>
             )}
 
-            {/* Email + PIN mode */}
-            {mode === 'email' && (
-              <div>
-                {step === 1 && (
-                  <div>
-                    <p style={{ fontSize: 13, color: T.textLight, marginBottom: 14, fontWeight: 500 }}>Enter your approved Gmail address</p>
-                    <input type="email" value={email} onChange={e => { setEmail(e.target.value); setError('') }}
-                      onKeyDown={e => e.key === 'Enter' && !loading && checkEmail()}
-                      placeholder="yourname@gmail.com" autoFocus
-                      style={{ width: '100%', padding: '13px 16px', border: `1.5px solid ${error ? T.danger : T.grayBorder}`, borderRadius: 10, fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 12, color: '#000', background: '#F8FAFF', fontWeight: 500 }} />
-                    {error && <div style={{ background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: T.danger, marginBottom: 12, lineHeight: 1.5 }}>{error}</div>}
-                    <button onClick={checkEmail} disabled={loading || !email.trim()}
-                      style={{ width: '100%', padding: 14, borderRadius: 12, border: 'none', background: loading || !email.trim() ? '#CBD5E1' : 'linear-gradient(135deg,#1B4FD8,#3B6EF8)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: loading || !email.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                      {loading ? '🔄 Checking...' : 'Continue →'}
-                    </button>
+            {/* STEP 2 — PIN */}
+            {step === 2 && (
+              <div className="animate-fadeIn">
+                <div style={{ background: T.successLight, border: '1px solid #86EFAC', borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: T.success, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>✅</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div>Email verified</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8 }}>{email}</div>
                   </div>
-                )}
-                {step === 2 && (
-                  <div>
-                    <div style={{ background: T.successLight, border: '1px solid #86EFAC', borderRadius: 10, padding: '10px 14px', marginBottom: 20, fontSize: 13, color: T.success, fontWeight: 700 }}>
-                      ✅ Email verified — enter your PIN
-                    </div>
-                    <PinPad onComplete={handleEmailPin} label="Enter your 4-digit PIN to complete login" disabled={loading} />
-                    {loading && <p style={{ fontSize: 13, color: T.textLight, marginTop: 14, fontWeight: 500 }}>🔄 Verifying with server...</p>}
-                    {error && <div style={{ marginTop: 16, background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: T.danger, lineHeight: 1.5 }}>{error}</div>}
-                    <button onClick={() => { setStep(1); setError('') }} style={{ background: 'none', border: 'none', color: T.textLight, fontSize: 12, cursor: 'pointer', marginTop: 16, fontFamily: 'inherit', fontWeight: 500 }}>← Change email</button>
-                  </div>
-                )}
+                </div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#000', marginBottom: 6 }}>Step 2 — Enter your PIN</p>
+                <PinPad onComplete={handlePinCheck} label="Your 4-digit access PIN" disabled={loading} />
+                {loading && <p style={{ fontSize: 13, color: T.textLight, marginTop: 14, fontWeight: 500 }}>🔄 Verifying...</p>}
+                {error && <div style={{ marginTop: 14, background: T.dangerLight, border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: T.danger, lineHeight: 1.5 }}>{error}</div>}
+                <button onClick={() => { setStep(1); setError(''); setVerifiedUser(null) }}
+                  style={{ background: 'none', border: 'none', color: T.textLight, fontSize: 12, cursor: 'pointer', marginTop: 18, fontFamily: 'inherit', fontWeight: 600 }}>← Use a different email</button>
               </div>
             )}
           </>
@@ -356,8 +337,7 @@ export default function AuthGate({ onAuthenticated }) {
           onClose={() => setShowBypass(false)}
         />
       )}
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} } .animate-fadeIn{animation:fadeIn 0.2s ease;}`}</style>
     </div>
   )
 }
